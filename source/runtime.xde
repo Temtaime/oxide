@@ -1,0 +1,22 @@
+alias bool = __uint(1);
+alias ubyte = __uint(8);
+alias ushort = __uint(16);
+alias uint = __uint(32);
+alias ulong = __uint(64);
+alias ucent = __uint(128);
+
+alias byte = __int(8);
+alias short = __int(16);
+alias int = __int(32);
+alias long = __int(64);
+alias cent = __int(128);
+
+alias char = ubyte;
+alias wchar = ushort;
+alias dchar = uint;
+
+struct __slice(T)
+{
+	T* ptr;
+	int length;
+}

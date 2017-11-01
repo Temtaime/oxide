@@ -1,0 +1,29 @@
+﻿{
+	"name": "oxide",
+
+	"dependencies":
+	{
+		"llvm-d": "~master",
+		"pegged": "~master",
+		"tt-utils": "~master"
+	},
+
+	"buildTypes":
+	{
+		"release":
+		{
+			"buildOptions": [ "optimize", "noBoundsCheck", "releaseMode" ]
+		}
+	},
+
+	"dflags": [ "-Jsource" ],
+	"buildRequirements": [ "silenceDeprecations" ],
+
+	"lflags-windows": [ "/LIBPATH:llvm" ],
+	"lflags-linux": [ "-L/opt/llvm/lib" ],
+
+	"libs-linux": [ "stdc++" ],
+	"libs-windows": [ "LLVMDebugInfoMSF" ],
+
+	"libs": [ "LLVMLTO", "LLVMObjCARCOpts", "LLVMSymbolize", "LLVMDebugInfoPDB", "LLVMDebugInfoDWARF", "LLVMObjectYAML", "LLVMGlobalISel", "LLVMOption", "LLVMCoverage", "LLVMTableGen", "LLVMOrcJIT", "LLVMX86Disassembler", "LLVMX86AsmParser", "LLVMX86CodeGen", "LLVMSelectionDAG", "LLVMAsmPrinter", "LLVMDebugInfoCodeView", "LLVMX86Desc", "LLVMMCDisassembler", "LLVMX86Info", "LLVMX86AsmPrinter", "LLVMX86Utils", "LLVMMCJIT", "LLVMLineEditor", "LLVMPasses", "LLVMipo", "LLVMVectorize", "LLVMLinker", "LLVMIRReader", "LLVMInterpreter", "LLVMExecutionEngine", "LLVMRuntimeDyld", "LLVMObject", "LLVMMCParser", "LLVMMIRParser", "LLVMCodeGen", "LLVMTarget", "LLVMScalarOpts", "LLVMInstCombine", "LLVMInstrumentation", "LLVMTransformUtils", "LLVMMC", "LLVMBitWriter", "LLVMBitReader", "LLVMAnalysis", "LLVMProfileData", "LLVMAsmParser", "LLVMCore", "LLVMSupport" ]
+}

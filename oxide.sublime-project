@@ -1,0 +1,41 @@
+{
+	"folders":
+	[
+		{
+			"path": "source"
+		},
+		{
+			"path": "gen/source"
+		}
+	],
+	"build_systems":
+	[
+		{
+			"name": "dub",
+			"shell_cmd": "dub build --build=unittest",
+			"working_dir": "$project_path",
+			"file_regex": "^(.+)\\(([0-9]+)\\)(): (.+)$",
+
+			"variants":
+			[
+				{
+					"name": "grammar gen",
+					"working_dir": "$project_path/gen",
+					"shell_cmd": "dub run"
+				},
+				{
+					"name": "release",
+					"shell_cmd": "dub build --build=release"
+				},
+				{
+					"name": "run",
+					"shell_cmd": "start cmd /c \"oxide & pause\""
+				},
+				{
+					"name": "run-linux",
+					"shell_cmd": "xfce4-terminal -x bash -c 'dub run && read -n1'"
+				}
+			]
+		}
+	]
+}

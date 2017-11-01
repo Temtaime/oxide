@@ -1,0 +1,10 @@
+﻿{
+	"name": "gen",
+	"targetType": "executable",
+
+	"dependencies": {
+		"pegged": "~master"
+	},
+
+	"buildRequirements": [ "silenceDeprecations" ]
+}

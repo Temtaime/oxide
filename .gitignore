@@ -1,0 +1,9 @@
+bin
+llvm
+
+.dub
+
+*.exe
+*.sublime-workspace
+
+dub.selections.json
