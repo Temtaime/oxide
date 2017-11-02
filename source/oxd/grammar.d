@@ -41,7 +41,7 @@ OXD:
 
 	Arg					< Type{extractChilds} VarDecl?
 	Args				< List(Arg, ','){extractChilds}? (',' "...")?
-	FuncStmt			< Type{extractChilds} Identifier '(' Args ')' (';' / '{' Stmt{extractChilds}* '}')
+	FuncStmt			< Type{extractChilds} Identifier '(' Args{extractChilds} ')' (';' / '{' Stmt{extractChilds}* '}')
 
 	BreakStmt			< "break" ';'
 	ContinueStmt		< "continue" ';'
@@ -1296,7 +1296,7 @@ struct GenericOXD(TParseTree)
     {
         if(__ctfe)
         {
-            return         pegged.peg.defined!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.wrapAround!(Spacing, Identifier, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.wrapAround!(Spacing, Args, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(";"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("{"), Spacing), pegged.peg.zeroOrMore!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Stmt, Spacing), extractChilds)), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("}"), Spacing))), Spacing)), "OXD.FuncStmt")(p);
+            return         pegged.peg.defined!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.wrapAround!(Spacing, Identifier, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Args, Spacing), extractChilds), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(";"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("{"), Spacing), pegged.peg.zeroOrMore!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Stmt, Spacing), extractChilds)), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("}"), Spacing))), Spacing)), "OXD.FuncStmt")(p);
         }
         else
         {
@@ -1304,7 +1304,7 @@ struct GenericOXD(TParseTree)
                 return *m;
             else
             {
-                TParseTree result = hooked!(pegged.peg.defined!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.wrapAround!(Spacing, Identifier, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.wrapAround!(Spacing, Args, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(";"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("{"), Spacing), pegged.peg.zeroOrMore!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Stmt, Spacing), extractChilds)), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("}"), Spacing))), Spacing)), "OXD.FuncStmt"), "FuncStmt")(p);
+                TParseTree result = hooked!(pegged.peg.defined!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.wrapAround!(Spacing, Identifier, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Args, Spacing), extractChilds), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(";"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("{"), Spacing), pegged.peg.zeroOrMore!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Stmt, Spacing), extractChilds)), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("}"), Spacing))), Spacing)), "OXD.FuncStmt"), "FuncStmt")(p);
                 memo[tuple(`FuncStmt`, p.end)] = result;
                 return result;
             }
@@ -1315,12 +1315,12 @@ struct GenericOXD(TParseTree)
     {
         if(__ctfe)
         {
-            return         pegged.peg.defined!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.wrapAround!(Spacing, Identifier, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.wrapAround!(Spacing, Args, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(";"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("{"), Spacing), pegged.peg.zeroOrMore!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Stmt, Spacing), extractChilds)), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("}"), Spacing))), Spacing)), "OXD.FuncStmt")(TParseTree("", false,[], s));
+            return         pegged.peg.defined!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.wrapAround!(Spacing, Identifier, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Args, Spacing), extractChilds), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(";"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("{"), Spacing), pegged.peg.zeroOrMore!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Stmt, Spacing), extractChilds)), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("}"), Spacing))), Spacing)), "OXD.FuncStmt")(TParseTree("", false,[], s));
         }
         else
         {
             forgetMemo();
-            return hooked!(pegged.peg.defined!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.wrapAround!(Spacing, Identifier, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.wrapAround!(Spacing, Args, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(";"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("{"), Spacing), pegged.peg.zeroOrMore!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Stmt, Spacing), extractChilds)), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("}"), Spacing))), Spacing)), "OXD.FuncStmt"), "FuncStmt")(TParseTree("", false,[], s));
+            return hooked!(pegged.peg.defined!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.wrapAround!(Spacing, Identifier, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Args, Spacing), extractChilds), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(";"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("{"), Spacing), pegged.peg.zeroOrMore!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Stmt, Spacing), extractChilds)), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("}"), Spacing))), Spacing)), "OXD.FuncStmt"), "FuncStmt")(TParseTree("", false,[], s));
         }
     }
     static string FuncStmt(GetName g)

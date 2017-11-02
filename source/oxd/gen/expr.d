@@ -24,6 +24,31 @@ struct ExprGen
 	{
 		switch(t.name)
 		{
+		case `OXD.FuncExpr`:
+			auto id = lex.id(t.firstMatch);
+			auto es = t.children.map!(a => process(a)).array;
+
+			{
+				auto s = sc.find(id);
+
+				if(auto sf = cast(ScopeFunc)s)
+				{
+					auto f = sf.fn;
+
+					auto vr = LLVMBuildCall(cgen.bd, f.fn, es.map!(a => a.value).array.ptr, es.length, ``);
+					return new Var(f.tp, vr);
+				}
+				else
+				{
+					auto n = lex.name(id);
+
+					!s || throwError(`%s is not a function`, n);
+					throwError(`use of undeclared function %s`, n);
+				}
+			}
+
+			assert(false);
+
 		case `OXD.AsgExpr`:
 			Var v;
 

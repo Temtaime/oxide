@@ -1,12 +1,10 @@
 
 int main()
 {
-	int a = 0;
+	return foo(3, 1);
+}
 
-	while(a < 10)
-	{
-		a = a + 1;
-	}
-
-	return a;
+int foo(int a, int b)
+{
+	return a * a + b;
 }

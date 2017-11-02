@@ -18,10 +18,8 @@ final class Lexer
 	auto create(string s)
 	{
 		auto p = treeOf(s);
-
 		log(*p);
 		return p;
-		//return StmtMaker().toStmts(*p);
 	}
 
 	auto id(string s)

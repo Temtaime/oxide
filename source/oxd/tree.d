@@ -31,7 +31,27 @@ struct TreeProcessor
 
 			f.tp = new TypeDeclaration(t.firstChild);
 			f.id = lex.id(t.children[1].firstMatch);
-			f.bd = t.children[2..$].find!(a => a.name != `OXD.Args`);
+
+			{
+				auto arr = t.children[2..$];
+
+				f.bd = arr.find!(a => a.name != `OXD.Arg`);
+
+				foreach(ref c; arr.until!(a => a.name != `OXD.Arg`))
+				{
+					FuncArg a =
+					{
+						tp: new TypeDeclaration(c.firstChild)
+					};
+
+					if(c.children.length > 1)
+					{
+						a.id = lex.id(c.lastChild.firstMatch);
+					}
+
+					f.args ~= a;
+				}
+			}
 
 			sc.declare(f.id, fs);
 			break;

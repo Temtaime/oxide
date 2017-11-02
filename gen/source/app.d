@@ -48,7 +48,7 @@ OXD:
 
 	Arg					< Type{extractChilds} VarDecl?
 	Args				< List(Arg, ','){extractChilds}? (',' "...")?
-	FuncStmt			< Type{extractChilds} Identifier '(' Args ')' (';' / '{' Stmt{extractChilds}* '}')
+	FuncStmt			< Type{extractChilds} Identifier '(' Args{extractChilds} ')' (';' / '{' Stmt{extractChilds}* '}')
 
 	BreakStmt			< "break" ';'
 	ContinueStmt		< "continue" ';'

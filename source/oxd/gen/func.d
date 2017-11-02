@@ -31,11 +31,27 @@ struct FuncCodegen
 		}
 	}
 
-	void process(in ParseTree[] arr, Scope sc)
+	void process(Scope sc)
 	{
-		processBlock(arr, sc);
+		sc = new Scope(sc);
 
+		foreach(i, ref a; _f.args)
+		{
+			if(a.id)
+			{
+				auto v = new Var(a.tp, LLVMGetParam(_f.fn, i));
+				sc.declare(a.id, new ScopeVar(sc, v));
+			}
+		}
+
+		processBlock(_f.bd, sc);
 		doesRet || _f.tp is TypeVoid.instance || throwError(`function does not return value`);
+	}
+
+private:
+	enum
+	{
+		EX_RETURN	= 1,
 	}
 
 	void process(ref in ParseTree t, Scope sc)
@@ -172,12 +188,6 @@ struct FuncCodegen
 		default:
 			assert(false, t.name);
 		}
-	}
-
-private:
-	enum
-	{
-		EX_RETURN	= 1,
 	}
 
 	auto makeBlock()

@@ -3,6 +3,7 @@ module oxd.func;
 import
 		std.range,
 		std.string,
+		std.algorithm,
 
 		oxd;
 
@@ -19,22 +20,20 @@ final class Func
 	{
 		tp = tp.resolve;
 
-		{
-			auto ty = LLVMFunctionType(tp.toLLVM, null, 0, !!(flags & F_VARARG));
+		args.each!((ref a) => a.tp = a.tp.resolve);
 
-			fn = LLVMAddFunction(cgen.mod, lex.name(id).toStringz, ty);
-		}
+		auto as = args
+						.map!(a => a.tp.toLLVM)
+						.array;
 
-		FuncCodegen(this).process(bd, new Scope(sc));
+		auto ty = LLVMFunctionType(tp.toLLVM, as.ptr, as.length, !!(flags & F_VARARG));
+
+		fn = LLVMAddFunction(cgen.mod, lex.name(id).toStringz, ty);
 	}
 
 	Type tp;
-	//TypeStruct st;
+	FuncArg[] args;
 
-	//FuncArg[] args;
-	//BlockStmt body_;
-
-	//FuncGen gen;
 	const(ParseTree)[] bd;
 
 	uint id;
@@ -43,11 +42,11 @@ final class Func
 	LLVMValueRef fn;
 }
 
-/*struct FuncArg
+struct FuncArg
 {
+	uint id;
 	Type tp;
-	Expr e;
-}*/
+}
 
 final class Block
 {

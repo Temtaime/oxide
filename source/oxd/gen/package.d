@@ -4,6 +4,7 @@ import
 		std.file,
 		std.stdio,
 		std.process,
+		std.algorithm,
 
 		oxd;
 
@@ -34,12 +35,11 @@ final class Codegen
 
 	void process(Scope sc)
 	{
-		foreach(c; sc.syms)
 		{
-			if(auto s = cast(ScopeFunc)c)
-			{
-				s.fn.gen(s);
-			}
+			auto fs = sc.syms.byValue.filter!(a => !!cast(ScopeFunc)a).map!(a => cast(ScopeFunc)a);
+
+			fs.each!(a => a.fn.gen(a));
+			fs.each!(a => FuncCodegen(a.fn).process(new Scope(a)));
 		}
 
 		{
