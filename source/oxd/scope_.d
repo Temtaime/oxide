@@ -1,6 +1,8 @@
 module oxd.scope_;
 
 import
+		std.algorithm,
+
 		oxd;
 
 
@@ -43,6 +45,16 @@ class Scope
 		return base ? base.find(id, flags) : null;
 	}
 
+	auto loop()
+	{
+		if(auto s = cast(ScopeLoop)this)
+		{
+			return s;
+		}
+
+		return base ? base.loop : null;
+	}
+
 	Scope base;
 	Scope[uint] syms;
 }
@@ -69,4 +81,18 @@ class ScopeVar : Scope
 	}
 
 	Var var;
+}
+
+class ScopeLoop : Scope
+{
+	this(Scope sc, LLVMBasicBlockRef c, LLVMBasicBlockRef n)
+	{
+		super(sc);
+
+		cond = c;
+		next = n;
+	}
+
+	LLVMBasicBlockRef cond;
+	LLVMBasicBlockRef next;
 }

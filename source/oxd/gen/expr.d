@@ -35,7 +35,7 @@ struct ExprGen
 				{
 					auto f = sf.fn;
 
-					auto vr = LLVMBuildCall(cgen.bd, f.fn, es.map!(a => a.value).array.ptr, es.length, ``);
+					auto vr = LLVMBuildCall(cgen.bd, f.fn, es.map!(a => a.value).array.ptr, cast(uint)es.length, ``);
 					return new Var(f.tp, vr);
 				}
 				else

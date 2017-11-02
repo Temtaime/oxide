@@ -35,8 +35,6 @@ struct TreeProcessor
 			{
 				auto arr = t.children[2..$];
 
-				f.bd = arr.find!(a => a.name != `OXD.Arg`);
-
 				foreach(ref c; arr.until!(a => a.name != `OXD.Arg`))
 				{
 					FuncArg a =
@@ -51,6 +49,8 @@ struct TreeProcessor
 
 					f.args ~= a;
 				}
+
+				f.bd = arr[f.args.length..$];
 			}
 
 			sc.declare(f.id, fs);

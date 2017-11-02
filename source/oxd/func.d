@@ -26,7 +26,7 @@ final class Func
 						.map!(a => a.tp.toLLVM)
 						.array;
 
-		auto ty = LLVMFunctionType(tp.toLLVM, as.ptr, as.length, !!(flags & F_VARARG));
+		auto ty = LLVMFunctionType(tp.toLLVM, as.ptr, cast(uint)as.length, !!(flags & F_VARARG));
 
 		fn = LLVMAddFunction(cgen.mod, lex.name(id).toStringz, ty);
 	}

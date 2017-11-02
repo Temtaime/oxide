@@ -35,7 +35,7 @@ struct FuncCodegen
 	{
 		sc = new Scope(sc);
 
-		foreach(i, ref a; _f.args)
+		foreach(uint i, ref a; _f.args)
 		{
 			if(a.id)
 			{
@@ -44,7 +44,7 @@ struct FuncCodegen
 			}
 		}
 
-		processBlock(_f.bd, sc);
+		processBlock(_f.bd, sc, false);
 		doesRet || _f.tp is TypeVoid.instance || throwError(`function does not return value`);
 	}
 
@@ -52,6 +52,9 @@ private:
 	enum
 	{
 		EX_RETURN	= 1,
+		EX_LOOP		= 2,
+
+		EX_BR		= EX_RETURN | EX_LOOP
 	}
 
 	void process(ref in ParseTree t, Scope sc)
@@ -65,12 +68,12 @@ private:
 			{
 				auto v = new MemVar(tp);
 
-				sc.declare(lex.id(c.firstMatch), new ScopeVar(sc, v));
-
 				if(c.children.length > 1)
 				{
 					v.assign(ExprGen(sc).process(c.lastChild));
 				}
+
+				sc.declare(lex.id(c.firstMatch), new ScopeVar(sc, v));
 			}
 
 			break;
@@ -83,9 +86,9 @@ private:
 			auto e = ExprGen(sc).process(t.firstChild).cast_(typeBool, true);
 
 			auto main = makeBlock;
-			auto cont = makeBlock;
+			auto next = makeBlock;
 
-			LLVMBuildCondBr(cgen.bd, e.value, main.bl, cont.bl);
+			LLVMBuildCondBr(cgen.bd, e.value, main.bl, next.bl);
 
 			reblock(main);
 			processBlock(t.lastChild, sc);
@@ -99,7 +102,7 @@ private:
 				LLVMBuildBr(cgen.bd, cond.bl);
 			}
 
-			reblock(cont);
+			reblock(next);
 			break;
 
 		case `OXD.IfStmt`:
@@ -107,7 +110,7 @@ private:
 			auto hasElse = t.children.length > 2;
 
 			{
-				Block cont;
+				Block next;
 
 				auto bt = makeBlock;
 				auto bf = makeBlock;
@@ -124,8 +127,8 @@ private:
 				}
 				else
 				{
-					cont = hasElse ? makeBlock : bf;
-					LLVMBuildBr(cgen.bd, cont.bl);
+					next = hasElse ? makeBlock : bf;
+					LLVMBuildBr(cgen.bd, next.bl);
 				}
 
 				// else block
@@ -136,7 +139,7 @@ private:
 
 					if(doesRet)
 					{
-						if(cont)
+						if(next)
 						{
 							_flags &= ~EX_RETURN;
 						}
@@ -147,20 +150,20 @@ private:
 					}
 					else
 					{
-						if(!cont)
+						if(!next)
 						{
-							cont = makeBlock;
+							next = makeBlock;
 						}
 
-						LLVMBuildBr(cgen.bd, cont.bl);
+						LLVMBuildBr(cgen.bd, next.bl);
 					}
 				}
 				else
 				{
-					cont = bf;
+					next = bf;
 				}
 
-				reblock(cont);
+				reblock(next);
 			}
 
 			break;
@@ -211,14 +214,17 @@ private:
 		return _cur;
 	}
 
-	auto processBlock(ref in ParseTree t, Scope sc)
+	auto processBlock(ref in ParseTree t, Scope sc, bool nsc = true)
 	{
-		return processBlock((&t)[0..1], sc);
+		return processBlock((&t)[0..1], sc, nsc);
 	}
 
-	auto processBlock(in ParseTree[] arr, Scope sc)
+	auto processBlock(in ParseTree[] arr, Scope sc, bool nsc = true)
 	{
-		sc = new Scope(sc);
+		if(nsc)
+		{
+			sc = new Scope(sc);
+		}
 
 		foreach(ref c; arr)
 		{
