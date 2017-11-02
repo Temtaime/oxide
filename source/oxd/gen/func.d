@@ -59,6 +59,33 @@ struct FuncCodegen
 
 			break;
 
+		case `OXD.WhileStmt`:
+			auto cond = makeBlock;
+			LLVMBuildBr(cgen.bd, cond.bl);
+
+			reblock(cond);
+			auto e = ExprGen(sc).process(t.firstChild).cast_(typeBool, true);
+
+			auto main = makeBlock;
+			auto cont = makeBlock;
+
+			LLVMBuildCondBr(cgen.bd, e.value, main.bl, cont.bl);
+
+			reblock(main);
+			processBlock(t.lastChild, sc);
+
+			if(doesRet)
+			{
+				_flags &= ~EX_RETURN;
+			}
+			else
+			{
+				LLVMBuildBr(cgen.bd, cond.bl);
+			}
+
+			reblock(cont);
+			break;
+
 		case `OXD.IfStmt`:
 			auto e = ExprGen(sc).process(t.firstChild).cast_(typeBool, true);
 			auto hasElse = t.children.length > 2;

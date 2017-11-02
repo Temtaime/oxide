@@ -1,14 +1,12 @@
 
 int main()
 {
-	int b = 5;
+	int a = 0;
 
-	if(b < 2)
-		return 44;
-	else if(b == 2)
-		return 3;
-	else
-		b = b + 1;
+	while(a < 10)
+	{
+		a = a + 1;
+	}
 
-	return b;
+	return a;
 }
