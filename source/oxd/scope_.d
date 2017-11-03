@@ -85,7 +85,7 @@ class ScopeVar : Scope
 
 class ScopeLoop : Scope
 {
-	this(Scope sc, LLVMBasicBlockRef c, LLVMBasicBlockRef n)
+	this(Scope sc, Block c, Block n)
 	{
 		super(sc);
 
@@ -93,6 +93,6 @@ class ScopeLoop : Scope
 		next = n;
 	}
 
-	LLVMBasicBlockRef cond;
-	LLVMBasicBlockRef next;
+	Block cond;
+	Block next;
 }

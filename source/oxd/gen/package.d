@@ -1,6 +1,7 @@
 module oxd.gen;
 
 import
+		std.conv,
 		std.file,
 		std.stdio,
 		std.process,

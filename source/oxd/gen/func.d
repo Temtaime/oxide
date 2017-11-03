@@ -88,21 +88,33 @@ private:
 			auto main = makeBlock;
 			auto next = makeBlock;
 
+			sc = new ScopeLoop(sc, cond, next);
+
 			LLVMBuildCondBr(cgen.bd, e.value, main.bl, next.bl);
+			auto m = processBlock(main, t.lastChild, sc, false);
 
-			reblock(main);
-			processBlock(t.lastChild, sc);
-
-			if(doesRet)
-			{
-				_flags &= ~EX_RETURN;
-			}
-			else
+			if(!(m & EX_BR))
 			{
 				LLVMBuildBr(cgen.bd, cond.bl);
 			}
 
 			reblock(next);
+			break;
+
+		case `OXD.BreakStmt`:
+			auto s = sc.loop;
+			s || throwError(`break used outside of loop`);
+
+			_flags |= EX_BR;
+			LLVMBuildBr(cgen.bd, s.next.bl);
+			break;
+
+		case `OXD.ContinueStmt`:
+			auto s = sc.loop;
+			s || throwError(`continue used outside of loop`);
+
+			_flags |= EX_BR;
+			LLVMBuildBr(cgen.bd, s.cond.bl);
 			break;
 
 		case `OXD.IfStmt`:
@@ -118,14 +130,9 @@ private:
 				LLVMBuildCondBr(cgen.bd, e.value, bt.bl, bf.bl);
 
 				// main block
-				reblock(bt);
-				processBlock(t.children[1], sc);
+				auto m = processBlock(bt, t.children[1], sc);
 
-				if(doesRet)
-				{
-					_flags &= ~EX_RETURN;
-				}
-				else
+				if(!(m & EX_BR))
 				{
 					next = hasElse ? makeBlock : bf;
 					LLVMBuildBr(cgen.bd, next.bl);
@@ -134,21 +141,9 @@ private:
 				// else block
 				if(hasElse)
 				{
-					reblock(bf);
-					processBlock(t.children[2], sc);
+					auto f = processBlock(bf, t.lastChild, sc);
 
-					if(doesRet)
-					{
-						if(next)
-						{
-							_flags &= ~EX_RETURN;
-						}
-						else
-						{
-							break;
-						}
-					}
-					else
+					if(!(f & EX_BR))
 					{
 						if(!next)
 						{
@@ -157,13 +152,26 @@ private:
 
 						LLVMBuildBr(cgen.bd, next.bl);
 					}
+
+					m &= f;
 				}
 				else
 				{
+					m = 0;
 					next = bf;
 				}
 
-				reblock(next);
+				if(m & EX_BR)
+				{
+					if(m & EX_RETURN)
+					{
+						_flags |= EX_RETURN;
+					}
+				}
+				else
+				{
+					reblock(next);
+				}
 			}
 
 			break;
@@ -191,6 +199,19 @@ private:
 		default:
 			assert(false, t.name);
 		}
+	}
+
+	auto processBlock(Block b, ref in ParseTree t, Scope sc, bool nsc = true)
+	{
+		reblock(b);
+		processBlock(t, sc, nsc);
+
+		scope(exit)
+		{
+			_flags &= ~EX_BR;
+		}
+
+		return _flags;
 	}
 
 	auto makeBlock()
@@ -228,7 +249,7 @@ private:
 
 		foreach(ref c; arr)
 		{
-			!doesRet || throwError(`unreachable`);
+			!doesBr || throwError(`unreachable`);
 			process(c, sc);
 		}
 
@@ -238,6 +259,11 @@ private:
 	const doesRet()
 	{
 		return !!(_flags & EX_RETURN);
+	}
+
+	const doesBr()
+	{
+		return !!(_flags & EX_BR);
 	}
 
 	Func _f;
