@@ -17,9 +17,7 @@ final class Lexer
 
 	auto create(string s)
 	{
-		auto p = treeOf(s);
-		log(*p);
-		return p;
+		return treeOf(s);
 	}
 
 	auto id(string s)
@@ -45,7 +43,10 @@ final class Lexer
 private:
 	auto treeOf(string s)
 	{
-		if(auto t = s in _tree) return t;
+		if(auto t = s in _tree)
+		{
+			return t;
+		}
 
 		auto r = OXD(s);
 		r.successful || throwError(r.failMsg);
