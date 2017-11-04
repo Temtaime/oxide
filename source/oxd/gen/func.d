@@ -130,9 +130,14 @@ private:
 				LLVMBuildCondBr(cgen.bd, e.value, bt.bl, bf.bl);
 
 				// main block
-				auto m = processBlock(bt, t.children[1], sc);
+				auto cnt = 0;
+				auto m = processBlock(bt, t.children[1], sc) & EX_BR;
 
-				if(!(m & EX_BR))
+				if(m)
+				{
+					cnt++;
+				}
+				else
 				{
 					next = hasElse ? makeBlock : bf;
 					LLVMBuildBr(cgen.bd, next.bl);
@@ -141,9 +146,14 @@ private:
 				// else block
 				if(hasElse)
 				{
-					auto f = processBlock(bf, t.lastChild, sc);
+					auto f = processBlock(bf, t.lastChild, sc) & EX_BR;
 
-					if(!(f & EX_BR))
+					if(f)
+					{
+						cnt++;
+						m |= f;
+					}
+					else
 					{
 						if(!next)
 						{
@@ -152,18 +162,15 @@ private:
 
 						LLVMBuildBr(cgen.bd, next.bl);
 					}
-
-					m &= f;
 				}
 				else
 				{
-					m = 0;
 					next = bf;
 				}
 
-				if(auto v = m & EX_BR)
+				if(cnt == 2)
 				{
-					_flags |= v;
+					_flags |= m;
 				}
 				else
 				{
