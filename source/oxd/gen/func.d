@@ -105,7 +105,7 @@ private:
 			auto s = sc.loop;
 			s || throwError(`break used outside of loop`);
 
-			_flags |= EX_BR;
+			_flags |= EX_LOOP;
 			LLVMBuildBr(cgen.bd, s.next.bl);
 			break;
 
@@ -113,7 +113,7 @@ private:
 			auto s = sc.loop;
 			s || throwError(`continue used outside of loop`);
 
-			_flags |= EX_BR;
+			_flags |= EX_LOOP;
 			LLVMBuildBr(cgen.bd, s.cond.bl);
 			break;
 
@@ -161,12 +161,9 @@ private:
 					next = bf;
 				}
 
-				if(m & EX_BR)
+				if(auto v = m & EX_BR)
 				{
-					if(m & EX_RETURN)
-					{
-						_flags |= EX_RETURN;
-					}
+					_flags |= v;
 				}
 				else
 				{
