@@ -34,23 +34,36 @@ struct TreeProcessor
 
 			{
 				auto arr = t.children[2..$];
+				auto args = arr.until!(a => a.name != `OXD.Arg`).array;
 
-				foreach(ref c; arr.until!(a => a.name != `OXD.Arg`))
+				foreach(ref c; args)
 				{
-					FuncArg a =
+					if(c.children.length)
 					{
-						tp: new TypeDeclaration(c.firstChild)
-					};
+						FuncArg a =
+						{
+							tp: new TypeDeclaration(c.firstChild)
+						};
 
-					if(c.children.length > 1)
-					{
-						a.id = lex.id(c.lastChild.firstMatch);
+						if(c.children.length > 1)
+						{
+							a.id = lex.id(c.lastChild.firstMatch);
+						}
+
+						f.args ~= a;
 					}
-
-					f.args ~= a;
+					else
+					{
+						f.flags |= F_VAR_ARG;
+						(&c) == &args.back || throwError(`extra arguments`);
+					}
 				}
 
-				f.bd = arr[f.args.length..$];
+				if(t.lastMatch != `;`)
+				{
+					f.flags |= F_BODY;
+					f.bd = arr[args.length..$];
+				}
 			}
 
 			sc.declare(f.id, fs);

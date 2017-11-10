@@ -22,7 +22,7 @@
 	"lflags-windows": [ "/LIBPATH:llvm" ],
 	"lflags-linux": [ "-L/opt/llvm/lib" ],
 
-	"libs-linux": [ "stdc++" ],
+	"libs-linux": [ "stdc++", "tinfo" ],
 
 	"libs": [ "LLVMLTO", "LLVMPasses", "LLVMObjCARCOpts", "LLVMSymbolize", "LLVMDebugInfoPDB", "LLVMDebugInfoDWARF", "LLVMTableGen", "LLVMDlltoolDriver", "LLVMLineEditor", "LLVMOrcJIT", "LLVMCoverage", "LLVMMIRParser", "LLVMObjectYAML", "LLVMLibDriver", "LLVMOption", "LLVMX86Disassembler", "LLVMX86AsmParser", "LLVMX86CodeGen", "LLVMGlobalISel", "LLVMSelectionDAG", "LLVMAsmPrinter", "LLVMDebugInfoCodeView", "LLVMDebugInfoMSF", "LLVMX86Desc", "LLVMMCDisassembler", "LLVMX86Info", "LLVMX86AsmPrinter", "LLVMX86Utils", "LLVMMCJIT", "LLVMInterpreter", "LLVMExecutionEngine", "LLVMRuntimeDyld", "LLVMCodeGen", "LLVMTarget", "LLVMCoroutines", "LLVMipo", "LLVMInstrumentation", "LLVMVectorize", "LLVMScalarOpts", "LLVMLinker", "LLVMIRReader", "LLVMAsmParser", "LLVMInstCombine", "LLVMTransformUtils", "LLVMBitWriter", "LLVMAnalysis", "LLVMProfileData", "LLVMObject", "LLVMMCParser", "LLVMMC", "LLVMBitReader", "LLVMCore", "LLVMBinaryFormat", "LLVMSupport", "LLVMDemangle" ]
 }

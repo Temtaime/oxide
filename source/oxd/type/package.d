@@ -17,18 +17,34 @@ public import oxd.type.typestruct;
 
 
 __gshared TypeInt	typeBool,
+
+					typeByte,
 					typeUbyte,
+
 					typeInt,
+					typeUint,
+
 					typeLong,
 					typeCent;
+
+__gshared TypeAuto typeAuto;
+__gshared TypeVoid typeVoid;
 
 void createTypes()
 {
 	typeBool = create!TypeInt(1, false);
+
+	typeByte = create!TypeInt(8, true);
 	typeUbyte = create!TypeInt(8, false);
+
 	typeInt = create!TypeInt(32, true);
+	typeUint = create!TypeInt(32, false);
+
 	typeLong = create!TypeInt(64, true);
 	typeCent = create!TypeInt(128, true);
+
+	typeVoid = create!TypeVoid;
+	typeAuto = create!TypeAuto;
 }
 
 auto create(T : Type)(ParameterTypeTuple!(T.__ctor) args)
@@ -104,8 +120,8 @@ private:
 		//case `BDC.TypeConst`:
 		//	return create!TypeConst(make(p.firstChild));
 
-		//case `BDC.TypePtr`:
-		//	return create!TypePtr(make(p.firstChild));
+		case `OXD.TypePtr`:
+			return create!TypePtr(make(p.firstChild));
 
 		//case `BDC.TypeSlice`:
 		//	auto t = make(p.firstChild);
@@ -115,18 +131,24 @@ private:
 			final switch(p.firstMatch)
 			{
 			case `void`:
-				return TypeVoid.instance;
+				return typeVoid;
 			case `auto`:
-				return TypeAuto.instance;
+				return typeAuto;
 			}
 
 		case `OXD.TypeInt`:
 			final switch(p.firstMatch)
 			{
-			//case `uint`:
-			//	return typeUint;
+			case `byte`:
+				return typeByte;
+			case `ubyte`:
+				return typeUbyte;
+
+			case `uint`:
+				return typeUint;
 			case `int`:
 				return typeInt;
+
 			case `bool`:
 				return typeBool;
 			}
@@ -156,15 +178,23 @@ class TypeVoid : Type
 	{
 		return LLVMVoidType();
 	}
-
-	__gshared instance = new TypeVoid;
 }
 
 class TypeAuto : Type
 {
 	private this() {}
+}
 
-	__gshared instance = new TypeAuto;
+class TypePtr : Type
+{
+	private mixin MakeCtor;
+
+	override LLVMTypeRef toLLVM() const
+	{
+		return LLVMPointerType(tp.toLLVM, 0);
+	}
+
+	Type tp;
 }
 
 /*
@@ -180,17 +210,7 @@ class TypeIncomplete : Type
 
 
 
-class TypePtr : Type
-{
-	private mixin MakeCtor;
 
-	override LLVMTypeRef toLLVM() const
-	{
-		return LLVMPointerType(tp.toLLVM, 0);
-	}
-
-	Type tp;
-}
 
 class TypeConst : Type
 {

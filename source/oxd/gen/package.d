@@ -40,7 +40,6 @@ final class Codegen
 			auto fs = sc.syms.byValue.filter!(a => !!cast(ScopeFunc)a).map!(a => cast(ScopeFunc)a);
 
 			fs.each!(a => a.fn.gen(a));
-			fs.each!(a => FuncCodegen(a.fn).process(new Scope(a)));
 		}
 
 		{
@@ -72,13 +71,15 @@ final class Codegen
 		version(linux)
 		{
 			executeShell(`gcc test.o -o test`);
-			executeShell(`./test`).writeln;
+			auto res = executeShell(`./test`);
 		}
 		else
 		{
 			executeShell(`link /libpath:lib msvcrt.lib kernel32.lib test.o /opt:ref,icf /subsystem:console /manifest:no /out:test.exe`);
-			executeShell(`test.exe`).writeln;
+			auto res = executeShell(`test.exe`);
 		}
+
+		writefln("%s\n\nexit code: %d", res.output, res.status);
 
 		std.file.remove(`test.o`);
 	}

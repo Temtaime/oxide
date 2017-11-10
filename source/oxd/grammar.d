@@ -39,8 +39,8 @@ OXD:
 ###
 	Stmt				< IfStmt / BreakStmt / ForStmt / WhileStmt / ContinueStmt / VarStmt / ReturnStmt / ExprStmt / ScopeStmt
 
-	Arg					< Type{extractChilds} VarDecl?
-	Args				< List(Arg, ','){extractChilds}? (',' "...")?
+	Arg					< Type{extractChilds} VarDecl? / "..."
+	Args				< List(Arg, ','){extractChilds}?
 	FuncStmt			< Type{extractChilds} Identifier '(' Args{extractChilds} ')' (';' / '{' Stmt{extractChilds}* '}')
 
 	BreakStmt			< "break" ';'
@@ -77,7 +77,7 @@ OXD:
 	TypePtr				< Type{extractChilds} '*'
 	TypeSlice			< Type{extractChilds} "[]"
 
-	TypeInt				< "bool" / "int" / "uint" / ("__uint" / "__int") '('  Integer ')'
+	TypeInt				< "bool" / "byte" / "ubyte" / "int" / "uint" / ("__uint" / "__int") '('  Integer ')'
 ###
 	Spacing				<- (space / eol / Comment / CommentMulti)*
 	Comment				<~ "//" (!eol .)* eol
@@ -114,7 +114,7 @@ auto extractChilds(ParseTree p)
 
 auto failOnKeyword(ParseTree p)
 {
-	static immutable words = [ "this","cast","break","continue","if","else","struct","return","for","while","alias","void","auto","const","bool","int","uint","__uint","__int","null","true","false", ];
+	static immutable words = [ "this","cast","break","continue","if","else","struct","return","for","while","alias","void","auto","const","bool","byte","ubyte","int","uint","__uint","__int","null","true","false", ];
 
 	p.successful &= !words.canFind(p.matches.front);
 	return p;
@@ -1224,7 +1224,7 @@ struct GenericOXD(TParseTree)
     {
         if(__ctfe)
         {
-            return         pegged.peg.defined!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.option!(pegged.peg.wrapAround!(Spacing, VarDecl, Spacing))), "OXD.Arg")(p);
+            return         pegged.peg.defined!(pegged.peg.or!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.option!(pegged.peg.wrapAround!(Spacing, VarDecl, Spacing))), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("..."), Spacing)), "OXD.Arg")(p);
         }
         else
         {
@@ -1232,7 +1232,7 @@ struct GenericOXD(TParseTree)
                 return *m;
             else
             {
-                TParseTree result = hooked!(pegged.peg.defined!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.option!(pegged.peg.wrapAround!(Spacing, VarDecl, Spacing))), "OXD.Arg"), "Arg")(p);
+                TParseTree result = hooked!(pegged.peg.defined!(pegged.peg.or!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.option!(pegged.peg.wrapAround!(Spacing, VarDecl, Spacing))), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("..."), Spacing)), "OXD.Arg"), "Arg")(p);
                 memo[tuple(`Arg`, p.end)] = result;
                 return result;
             }
@@ -1243,12 +1243,12 @@ struct GenericOXD(TParseTree)
     {
         if(__ctfe)
         {
-            return         pegged.peg.defined!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.option!(pegged.peg.wrapAround!(Spacing, VarDecl, Spacing))), "OXD.Arg")(TParseTree("", false,[], s));
+            return         pegged.peg.defined!(pegged.peg.or!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.option!(pegged.peg.wrapAround!(Spacing, VarDecl, Spacing))), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("..."), Spacing)), "OXD.Arg")(TParseTree("", false,[], s));
         }
         else
         {
             forgetMemo();
-            return hooked!(pegged.peg.defined!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.option!(pegged.peg.wrapAround!(Spacing, VarDecl, Spacing))), "OXD.Arg"), "Arg")(TParseTree("", false,[], s));
+            return hooked!(pegged.peg.defined!(pegged.peg.or!(pegged.peg.and!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, Type, Spacing), extractChilds), pegged.peg.option!(pegged.peg.wrapAround!(Spacing, VarDecl, Spacing))), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("..."), Spacing)), "OXD.Arg"), "Arg")(TParseTree("", false,[], s));
         }
     }
     static string Arg(GetName g)
@@ -1260,7 +1260,7 @@ struct GenericOXD(TParseTree)
     {
         if(__ctfe)
         {
-            return         pegged.peg.defined!(pegged.peg.and!(pegged.peg.option!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, List!(pegged.peg.wrapAround!(Spacing, Arg, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(","), Spacing)), Spacing), extractChilds)), pegged.peg.option!(pegged.peg.wrapAround!(Spacing, pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(","), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("..."), Spacing)), Spacing))), "OXD.Args")(p);
+            return         pegged.peg.defined!(pegged.peg.option!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, List!(pegged.peg.wrapAround!(Spacing, Arg, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(","), Spacing)), Spacing), extractChilds)), "OXD.Args")(p);
         }
         else
         {
@@ -1268,7 +1268,7 @@ struct GenericOXD(TParseTree)
                 return *m;
             else
             {
-                TParseTree result = hooked!(pegged.peg.defined!(pegged.peg.and!(pegged.peg.option!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, List!(pegged.peg.wrapAround!(Spacing, Arg, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(","), Spacing)), Spacing), extractChilds)), pegged.peg.option!(pegged.peg.wrapAround!(Spacing, pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(","), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("..."), Spacing)), Spacing))), "OXD.Args"), "Args")(p);
+                TParseTree result = hooked!(pegged.peg.defined!(pegged.peg.option!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, List!(pegged.peg.wrapAround!(Spacing, Arg, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(","), Spacing)), Spacing), extractChilds)), "OXD.Args"), "Args")(p);
                 memo[tuple(`Args`, p.end)] = result;
                 return result;
             }
@@ -1279,12 +1279,12 @@ struct GenericOXD(TParseTree)
     {
         if(__ctfe)
         {
-            return         pegged.peg.defined!(pegged.peg.and!(pegged.peg.option!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, List!(pegged.peg.wrapAround!(Spacing, Arg, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(","), Spacing)), Spacing), extractChilds)), pegged.peg.option!(pegged.peg.wrapAround!(Spacing, pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(","), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("..."), Spacing)), Spacing))), "OXD.Args")(TParseTree("", false,[], s));
+            return         pegged.peg.defined!(pegged.peg.option!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, List!(pegged.peg.wrapAround!(Spacing, Arg, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(","), Spacing)), Spacing), extractChilds)), "OXD.Args")(TParseTree("", false,[], s));
         }
         else
         {
             forgetMemo();
-            return hooked!(pegged.peg.defined!(pegged.peg.and!(pegged.peg.option!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, List!(pegged.peg.wrapAround!(Spacing, Arg, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(","), Spacing)), Spacing), extractChilds)), pegged.peg.option!(pegged.peg.wrapAround!(Spacing, pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(","), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("..."), Spacing)), Spacing))), "OXD.Args"), "Args")(TParseTree("", false,[], s));
+            return hooked!(pegged.peg.defined!(pegged.peg.option!(pegged.peg.action!(pegged.peg.wrapAround!(Spacing, List!(pegged.peg.wrapAround!(Spacing, Arg, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(","), Spacing)), Spacing), extractChilds)), "OXD.Args"), "Args")(TParseTree("", false,[], s));
         }
     }
     static string Args(GetName g)
@@ -2125,7 +2125,7 @@ struct GenericOXD(TParseTree)
     {
         if(__ctfe)
         {
-            return         pegged.peg.defined!(pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("bool"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("int"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("uint"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__uint"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__int"), Spacing)), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.wrapAround!(Spacing, Integer, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing))), "OXD.TypeInt")(p);
+            return         pegged.peg.defined!(pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("bool"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("byte"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("ubyte"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("int"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("uint"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__uint"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__int"), Spacing)), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.wrapAround!(Spacing, Integer, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing))), "OXD.TypeInt")(p);
         }
         else
         {
@@ -2133,7 +2133,7 @@ struct GenericOXD(TParseTree)
                 return *m;
             else
             {
-                TParseTree result = hooked!(pegged.peg.defined!(pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("bool"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("int"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("uint"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__uint"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__int"), Spacing)), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.wrapAround!(Spacing, Integer, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing))), "OXD.TypeInt"), "TypeInt")(p);
+                TParseTree result = hooked!(pegged.peg.defined!(pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("bool"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("byte"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("ubyte"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("int"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("uint"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__uint"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__int"), Spacing)), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.wrapAround!(Spacing, Integer, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing))), "OXD.TypeInt"), "TypeInt")(p);
                 memo[tuple(`TypeInt`, p.end)] = result;
                 return result;
             }
@@ -2144,12 +2144,12 @@ struct GenericOXD(TParseTree)
     {
         if(__ctfe)
         {
-            return         pegged.peg.defined!(pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("bool"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("int"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("uint"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__uint"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__int"), Spacing)), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.wrapAround!(Spacing, Integer, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing))), "OXD.TypeInt")(TParseTree("", false,[], s));
+            return         pegged.peg.defined!(pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("bool"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("byte"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("ubyte"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("int"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("uint"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__uint"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__int"), Spacing)), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.wrapAround!(Spacing, Integer, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing))), "OXD.TypeInt")(TParseTree("", false,[], s));
         }
         else
         {
             forgetMemo();
-            return hooked!(pegged.peg.defined!(pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("bool"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("int"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("uint"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__uint"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__int"), Spacing)), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.wrapAround!(Spacing, Integer, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing))), "OXD.TypeInt"), "TypeInt")(TParseTree("", false,[], s));
+            return hooked!(pegged.peg.defined!(pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("bool"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("byte"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("ubyte"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("int"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("uint"), Spacing), pegged.peg.and!(pegged.peg.wrapAround!(Spacing, pegged.peg.or!(pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__uint"), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("__int"), Spacing)), Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!("("), Spacing), pegged.peg.wrapAround!(Spacing, Integer, Spacing), pegged.peg.wrapAround!(Spacing, pegged.peg.literal!(")"), Spacing))), "OXD.TypeInt"), "TypeInt")(TParseTree("", false,[], s));
         }
     }
     static string TypeInt(GetName g)

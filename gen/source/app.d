@@ -46,8 +46,8 @@ OXD:
 ###
 	Stmt				< IfStmt / BreakStmt / ForStmt / WhileStmt / ContinueStmt / VarStmt / ReturnStmt / ExprStmt / ScopeStmt
 
-	Arg					< Type{extractChilds} VarDecl?
-	Args				< List(Arg, ','){extractChilds}? (',' "...")?
+	Arg					< Type{extractChilds} VarDecl? / "..."
+	Args				< List(Arg, ','){extractChilds}?
 	FuncStmt			< Type{extractChilds} Identifier '(' Args{extractChilds} ')' (';' / '{' Stmt{extractChilds}* '}')
 
 	BreakStmt			< "break" ';'
@@ -84,7 +84,7 @@ OXD:
 	TypePtr				< Type{extractChilds} '*'
 	TypeSlice			< Type{extractChilds} "[]"
 
-	TypeInt				< "bool" / "int" / "uint" / ("__uint" / "__int") '('  Integer ')'
+	TypeInt				< "bool" / "byte" / "ubyte" / "int" / "uint" / ("__uint" / "__int") '('  Integer ')'
 ###
 	Spacing				<- (space / eol / Comment / CommentMulti)*
 	Comment				<~ "//" (!eol .)* eol

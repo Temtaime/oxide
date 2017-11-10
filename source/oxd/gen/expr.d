@@ -86,6 +86,18 @@ struct ExprGen
 
 			return v;
 
+		case `OXD.StringLiteral`:
+			auto s = format(`[%s]`, t.firstMatch).to!(string[]).front;
+			auto v = LLVMConstString(s.ptr, cast(uint)s.length, false);
+
+			auto g = LLVMAddGlobal(cgen.mod, LLVMTypeOf(v), ``);
+			LLVMSetInitializer(g, v);
+
+			auto z = LLVMConstNull(typeInt.toLLVM);
+			v = LLVMBuildGEP(cgen.bd, g, [ z, z ].ptr, 2, ``);
+
+			return new Var(create!TypePtr(typeUbyte), v);
+
 		case `OXD.IntegerLiteral`:
 			auto tp = typeInt;
 			return new Var(tp, LLVMConstIntOfString(tp.toLLVM, t.firstMatch.toStringz, 10));

@@ -10,25 +10,29 @@ import
 
 enum
 {
-	F_VARARG	= 1,
-	F_NORET		= 2,
+	F_VAR_ARG	= 1,
+	F_BODY		= 2,
+	F_DONE		= 4,
 }
 
 final class Func
 {
+	@property fn()
+	{
+		processDecl;
+		return _fn;
+	}
+
 	void gen(Scope sc)
 	{
-		tp = tp.resolve;
+		processDecl;
 
-		args.each!((ref a) => a.tp = a.tp.resolve);
+		if(flags & F_BODY && !(flags & F_DONE))
+		{
+			flags |= F_DONE;
 
-		auto as = args
-						.map!(a => a.tp.toLLVM)
-						.array;
-
-		auto ty = LLVMFunctionType(tp.toLLVM, as.ptr, cast(uint)as.length, !!(flags & F_VARARG));
-
-		fn = LLVMAddFunction(cgen.mod, lex.name(id).toStringz, ty);
+			FuncCodegen(this).process(new Scope(sc));
+		}
 	}
 
 	Type tp;
@@ -38,8 +42,24 @@ final class Func
 
 	uint id;
 	ubyte flags;
+private:
+	void processDecl()
+	{
+		if(!_fn)
+		{
+			tp = tp.resolve;
+			args.each!((ref a) => a.tp = a.tp.resolve);
 
-	LLVMValueRef fn;
+			auto as = args
+							.map!(a => a.tp.toLLVM)
+							.array;
+
+			auto ty = LLVMFunctionType(tp.toLLVM, as.ptr, cast(uint)as.length, !!(flags & F_VAR_ARG));
+			_fn = LLVMAddFunction(cgen.mod, lex.name(id).toStringz, ty);
+		}
+	}
+
+	LLVMValueRef _fn;
 }
 
 struct FuncArg

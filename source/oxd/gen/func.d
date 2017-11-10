@@ -45,7 +45,7 @@ struct FuncCodegen
 		}
 
 		processBlock(_f.bd, sc, false);
-		doesRet || _f.tp is TypeVoid.instance || throwError(`function does not return value`);
+		doesRet || _f.tp is typeVoid || throwError(`function does not return value`);
 	}
 
 private:

@@ -32,6 +32,7 @@ void main(string[] args)
 		auto s = files[0].readText;
 
 		auto p = lex.create(s);
+		//log(*p);
 
 		{
 			auto sc = new Scope(null);
