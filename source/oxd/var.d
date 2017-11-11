@@ -67,9 +67,19 @@ private:
 
 final class MemVar : Var
 {
+	this(Type t, LLVMValueRef v)
+	{
+		super(t, v);
+	}
+
 	this(Type t)
 	{
-		super(t, LLVMBuildAlloca(cgen.bd, t.toLLVM, ``));
+		auto r = t.toLLVM;
+		auto n = LLVMConstNull(r);
+
+		super(t, LLVMBuildAlloca(cgen.bd, r, ``));
+
+		LLVMBuildStore(cgen.bd, n, _vr);
 	}
 
 	override void assign(Var v)

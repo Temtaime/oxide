@@ -1,7 +1,9 @@
 
 int main()
 {
-	printf("hello, world %d\n", foo(2, 1));
+	int a = 10;
+
+	printf("hello, world %d, %d, %d\n", foo(2, 1), *&a, &a);
 
 	return 11;
 }

@@ -64,6 +64,19 @@ struct ExprGen
 
 			return v;
 
+		case `OXD.UnaryExpr`:
+			auto e = process(t.lastChild);
+
+			final switch(t.firstMatch)
+			{
+			case `&`:
+				return new Var(create!TypePtr(e.tp), e.addr);
+			case `*`:
+				auto tp = cast(TypePtr)e.tp;
+				tp || throwError(`expression cannot be dereferenced`);
+				return new MemVar(tp.tp, e.value);
+			}
+
 		case `OXD.EquExpr`:
 		case `OXD.CmpExpr`:
 		case `OXD.AddExpr`:
